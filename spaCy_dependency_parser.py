@@ -49,21 +49,20 @@ def visualize_dependencies(doc, output_file):
 def load_model(language):
     """Load spaCy model with automatic download if missing"""
     models = {
-        # Existing models
-        "en": "en_core_web_sm",  # English (12MB)
-        "ru": "ru_core_news_sm",  # Russian (43MB)
-        "de": "de_core_news_sm",  # German (14MB)
-        "pl": "pl_core_news_sm",  # Polish (15MB)
-        "fi": "fi_core_news_sm",  # Finnish (13MB)
-        "fr": "fr_core_news_sm",  # French (16MB)
-        "es": "es_core_news_sm",  # Spanish (13MB)
-        "it": "it_core_news_sm",  # Italian (14MB)
-        "pt": "pt_core_news_sm",  # Portuguese (13MB)
-        "nl": "nl_core_news_sm",  # Dutch (13MB)
-        "zh": "zh_core_web_sm",  # Chinese (14MB)
-        "ja": "ja_core_news_sm",  # Japanese (17MB)
-        "da": "da_core_news_sm",  # Danish (13MB)
-        "sv": "sv_core_news_sm",  # Swedish (13MB)
+        "en": "en_core_web_sm",
+        "ru": "ru_core_news_sm",
+        "de": "de_core_news_sm",
+        "pl": "pl_core_news_sm",
+        "fi": "fi_core_news_sm",
+        "fr": "fr_core_news_sm",
+        "es": "es_core_news_sm",
+        "it": "it_core_news_sm",
+        "pt": "pt_core_news_sm",
+        "nl": "nl_core_news_sm",
+        "zh": "zh_core_web_sm",
+        "ja": "ja_core_news_sm",
+        "da": "da_core_news_sm",
+        "sv": "sv_core_news_sm",
     }
 
     model_name = models.get(language, "en_core_web_sm")
@@ -78,39 +77,49 @@ def load_model(language):
 
 def read_examples_from_csv(csv_file_path):
     """
-    Read examples from a CSV file.
-    Each line of the first column is treated as a separate example.
-    Returns a list of examples.
+    Read examples from a CSV file with two columns:
+    - first column: example number (n)
+    - second column: sentence (Full context)
+    Returns two lists: ids and sentences.
     """
-    examples = []
+    ids = []
+    sentences = []
 
     if not os.path.exists(csv_file_path):
         print(f"Error: CSV file '{csv_file_path}' not found!")
-        return examples
+        return ids, sentences
 
     try:
         with open(csv_file_path, 'r', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
 
-            # Skip header if it exists (optional - you might want to make this configurable)
-            # next(reader, None)  # Uncomment if your CSV has a header row
+            # Uncomment the next line if your CSV has a header row
+            # next(reader, None)
 
             for row in reader:
-                if row and row[0].strip():  # Check if first column exists and is not empty
-                    examples.append(row[0].strip())
+                if len(row) >= 2 and row[0].strip() and row[1].strip():
+                    # Try to convert n to int, keep as string if fails
+                    try:
+                        n = int(row[0].strip())
+                    except ValueError:
+                        n = row[0].strip()
+                    sentence = row[1].strip()
+                    ids.append(n)
+                    sentences.append(sentence)
 
-        print(f"Successfully read {len(examples)} examples from '{csv_file_path}'")
+        print(f"Successfully read {len(sentences)} examples from '{csv_file_path}'")
 
     except Exception as e:
         print(f"Error reading CSV file: {e}")
 
-    return examples
+    return ids, sentences
 
 
 def analyze_dependencies(examples, query_word, language="en"):
     """
-    Analyze both incoming and outgoing dependencies for a specific word across examples
-    Returns a dictionary with dependency statistics
+    Analyze both incoming and outgoing dependencies for a specific word across examples.
+    Uses lemma matching to catch inflected forms.
+    Returns a dictionary with dependency statistics.
     """
     nlp = load_model(language)
     stats = defaultdict(lambda: {"count": 0, "examples": []})
@@ -118,31 +127,24 @@ def analyze_dependencies(examples, query_word, language="en"):
     for sentence in examples:
         doc = nlp(sentence)
         for token in doc:
-            # Case-insensitive matching
-            if token.text.lower() == query_word.lower():
-                # Collect outgoing dependencies (query word -> children)
+            # Match by lemma (case-insensitive) to catch all grammatical forms
+            if token.lemma_.lower() == query_word.lower():
+                # Outgoing dependencies (query word -> children)
                 for child in token.children:
-                    # Exclude punctuation dependencies
                     if child.dep_ == "punct":
                         continue
-
                     dep_type = f"OUT: {child.dep_}"
                     stats[dep_type]["count"] += 1
+                    example = f"{token.text} → {child.text}"
+                    stats[dep_type]["examples"].append(example)
 
-                    # Store example child (limit to 3 per dependency type)
-                    if len(stats[dep_type]["examples"]) < 3:
-                        example = f"{token.text} → {child.text}"
-                        stats[dep_type]["examples"].append(example)
-
-                # Collect incoming dependencies (head -> query word)
-                if token.head != token:  # Skip if query word is the root
+                # Incoming dependencies (head -> query word)
+                if token.head != token:
                     dep_type = f"IN: {token.dep_}"
                     stats[dep_type]["count"] += 1
-
-                    # Store example (limit to 3 per dependency type)
-                    if len(stats[dep_type]["examples"]) < 3:
-                        example = f"{token.head.text} → {token.text}"
-                        stats[dep_type]["examples"].append(example)
+                    # FIX: use token.head.text, not undefined 'child'
+                    example = f"{token.head.text} → {token.text}"
+                    stats[dep_type]["examples"].append(example)
 
     return dict(stats)
 
@@ -153,13 +155,11 @@ def print_dependency_stats(stats, query_word):
         print(f"\nNo dependencies found for '{query_word}' in the examples")
         return
 
-    # Prepare table data
     table_data = []
     for dep_type, data in sorted(stats.items()):
         examples = ", ".join(data["examples"])
         table_data.append([dep_type, data["count"], examples])
 
-    # Print table
     print(f"\nDependency Statistics for '{query_word}':")
     print(tabulate(
         table_data,
@@ -169,7 +169,6 @@ def print_dependency_stats(stats, query_word):
         stralign="left"
     ))
 
-    # Print summary
     total = sum(item["count"] for item in stats.values())
     unique = len(stats)
     print(f"\nTotal dependencies: {total} | Unique types: {unique}")
@@ -179,9 +178,7 @@ def export_combined_dependency_table_to_csv(all_dependency_data, filename):
     """Export combined dependency table data to CSV"""
     with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        # Write header
         writer.writerow(['Example_ID', 'Sentence', 'Token', 'Direction', 'Child', 'Dependency Type'])
-        # Write data
         for row in all_dependency_data:
             writer.writerow(row)
     print(f"Combined dependency table exported to: {filename}")
@@ -191,58 +188,102 @@ def export_dependency_stats_to_csv(stats_data, query_word, filename):
     """Export dependency statistics to CSV"""
     with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        # Write header
         writer.writerow(['Dependency Type (Direction)', 'Count', 'Example Relations'])
-        # Write data
         for dep_type, data in sorted(stats_data.items()):
             examples = ", ".join(data["examples"])
             writer.writerow([dep_type, data["count"], examples])
     print(f"Dependency statistics for '{query_word}' exported to: {filename}")
 
+def export_all_dependency_occurrences(ids, sentences, query_word, language, filename):
+    """
+    Export every dependency occurrence for the query word (no aggregation, one row per occurrence).
+    Uses lemma matching.
+    """
+    nlp = load_model(language)
+    with open(filename, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['n', 'Sentence', 'Word', 'Direction',
+                         'Related_Word', 'Dependency_Type', 'Position_Word',
+                         'Position_Related', 'Is_Root'])
+        for n, sentence in zip(ids, sentences):
+            doc = nlp(sentence)
+            for token in doc:
+                if token.lemma_.lower() == query_word.lower():
+                    # Outgoing
+                    for child in token.children:
+                        if child.dep_ == "punct":
+                            continue
+                        writer.writerow([n, sentence, token.text, 'OUT',
+                                         child.text, child.dep_, token.i, child.i,
+                                         token.head == token])   # <-- FIXED
+                    # Incoming
+                    if token.head != token:
+                        writer.writerow([n, sentence, token.text, 'IN',
+                                         token.head.text, token.dep_, token.i, token.head.i,
+                                         False])   # not root by definition
+    print(f"All occurrences for '{query_word}' exported to: {filename}")
 
-def process_examples_with_analysis(examples, language="en", query_words=None, output_dir="dependency_visualizations"):
-    """Process examples with dependency analysis for specific words"""
+def export_incoming_heads(ids, sentences, query_word, language, filename):
+    """
+    Export for each input example (n) a row with:
+    - n: original example number
+    - Head: semicolon-separated list of head words (incoming dependencies)
+    - DepType: semicolon-separated list of dependency types
+    If no incoming head exists for the query word in that sentence, both Head and DepType are empty.
+    """
+    nlp = load_model(language)
+    with open(filename, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['n', 'Head', 'DepType'])
+        for n, sentence in zip(ids, sentences):
+            doc = nlp(sentence)
+            heads = []
+            dep_types = []
+            for token in doc:
+                if token.lemma_.lower() == query_word.lower():
+                    if token.head != token:  # has incoming dependency
+                        heads.append(token.head.text)
+                        dep_types.append(token.dep_)
+            # Write one row per sentence, joining multiple heads/deps with '; '
+            writer.writerow([n, '; '.join(heads), '; '.join(dep_types)])
+    print(f"Incoming heads for '{query_word}' exported to: {filename}")
+
+def process_examples_with_analysis(ids, sentences, language="en", query_words=None, output_dir="dependency_visualizations"):
+    """Process examples with dependency analysis for specific words."""
     nlp = load_model(language)
     os.makedirs(output_dir, exist_ok=True)
 
-    # Create CSV directory
     csv_dir = "dependency_csv_exports"
     os.makedirs(csv_dir, exist_ok=True)
 
-    # Generate timestamp for unique filenames
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # Combined data for all examples
     all_dependency_data = []
 
-    # Process each example
-    for i, sentence in enumerate(examples):
+    # Process each sentence
+    for idx, sentence in enumerate(sentences):
         print(f"\n{'=' * 50}")
-        print(f"PROCESSING EXAMPLE {i + 1} ({language.upper()}): {sentence}")
+        print(f"PROCESSING EXAMPLE {idx + 1} ({language.upper()}): {sentence}")
         print(f"{'=' * 50}")
 
         doc = nlp(sentence)
 
-        # Enhanced dependency table showing only outgoing dependencies
+        # Outgoing dependencies table (console)
         print("\nOUTGOING DEPENDENCIES TABLE:")
         print(f"{'Token':<15}{'→':<5}{'Child':<15}{'Dependency Type':<20}")
         print("-" * 55)
 
-        # Track which dependencies we've already shown to avoid duplicates within this example
         shown_dependencies = set()
-
         for token in doc:
-            # Show only outgoing dependencies (token -> children)
             for child in token.children:
-                if child.dep_ != "punct":  # Exclude punctuation
+                if child.dep_ != "punct":
                     dependency_key = f"{token.text}_{child.text}_{child.dep_}"
                     if dependency_key not in shown_dependencies:
                         print(f"{token.text:<15}{'→':<5}{child.text:<15}{child.dep_:<20}")
-                        # Add to combined CSV data with example info
-                        all_dependency_data.append([i + 1, sentence, token.text, '→', child.text, child.dep_])
+                        all_dependency_data.append([idx + 1, sentence, token.text, '→', child.text, child.dep_])
                         shown_dependencies.add(dependency_key)
 
-        # Original basic dependencies (unchanged)
+        # Basic dependencies (console)
         print("\nBASIC DEPENDENCIES:")
         print(f"{'Token':<15}{'Dependency':<12}{'Head':<15}Children")
         print("-" * 45)
@@ -250,47 +291,51 @@ def process_examples_with_analysis(examples, language="en", query_words=None, ou
             children = ", ".join([child.text for child in token.children])
             print(f"{token.text:<15}{token.dep_:<12}{token.head.text:<15}{children}")
 
-        # Tree structure
+        # Tree structure (console)
         print("\nTREE STRUCTURE:")
         root = build_dependency_tree(doc)
         print_tree(root)
 
-        # Visualization
-        output_file = os.path.join(output_dir, f"dependency_{language}_{i + 1}.html")
+        # HTML visualization
+        output_file = os.path.join(output_dir, f"dependency_{language}_{idx + 1}.html")
         visualize_dependencies(doc, output_file)
         print(f"\nVisualization saved to: {output_file}")
 
-    # Export combined dependency table to CSV
+    # Export combined dependency table
     if all_dependency_data:
         combined_csv_filename = os.path.join(csv_dir, f"combined_dependency_table_{language}_{timestamp}.csv")
         export_combined_dependency_table_to_csv(all_dependency_data, combined_csv_filename)
 
-        # Print summary of combined table
         print(f"\n{'=' * 60}")
         print(f"COMBINED DEPENDENCY TABLE SUMMARY")
         print(f"{'=' * 60}")
         print(f"Total dependencies across all examples: {len(all_dependency_data)}")
         print(f"Unique dependency types: {len(set(row[5] for row in all_dependency_data))}")
 
-        # Show a preview of the combined data
         print(f"\nFirst 10 dependencies in combined table:")
         preview_headers = ['Example_ID', 'Token', '→', 'Child', 'Dependency Type']
         preview_data = [[row[0], row[2], row[3], row[4], row[5]] for row in all_dependency_data[:10]]
         print(tabulate(preview_data, headers=preview_headers, tablefmt="grid"))
 
-    # Dependency analysis for query words (shows both incoming and outgoing)
+    # Dependency analysis for query words
     if query_words:
         print("\n\n" + "=" * 60)
         print("DEPENDENCY ANALYSIS FOR QUERY WORDS")
         print("=" * 60)
 
         for word in query_words:
-            stats = analyze_dependencies(examples, word, language)
+            stats = analyze_dependencies(sentences, word, language)
             print_dependency_stats(stats, word)
 
-            # Export dependency statistics to CSV
             stats_filename = os.path.join(csv_dir, f"dependency_stats_{language}_{word}_{timestamp}.csv")
             export_dependency_stats_to_csv(stats, word, stats_filename)
+
+            full_filename = os.path.join(csv_dir, f"full_occurrences_{language}_{word}_{timestamp}.csv")
+            export_all_dependency_occurrences(ids, sentences, word, language, full_filename)
+
+            # NEW: export incoming heads
+            heads_filename = os.path.join(csv_dir, f"incoming_heads_{language}_{word}_{timestamp}.csv")
+            export_incoming_heads(ids, sentences, word, language, heads_filename)
 
     return csv_dir
 
@@ -298,26 +343,26 @@ def process_examples_with_analysis(examples, language="en", query_words=None, ou
 # Main execution
 if __name__ == "__main__":
     # Configuration
-    LANGUAGE = "ru"  # Change to "ru" for Russian
+    LANGUAGE = "ru"                     # Change to your language code
     OUTPUT_DIR = "dependency_visualizations"
-    QUERY_WORDS = ["компания", "песни"]  # Words to analyze
-    CSV_FILE_PATH = "examples.csv"  # Path to your CSV file
+    QUERY_WORDS = ["компания"]          # Word to analyse (lemma form)
+    CSV_FILE_PATH = "/home/yenotmur/Dropbox/TypConstr/Comitative/komp_full.csv"  # Your two-column CSV
 
-    # Read examples from CSV file
-    examples = read_examples_from_csv(CSV_FILE_PATH)
+    # Read examples from CSV
+    ids, sentences = read_examples_from_csv(CSV_FILE_PATH)
 
-    if not examples:
+    if not sentences:
         print("No examples found! Using default examples instead.")
-        # Fallback to default examples if CSV is empty or not found
-        examples = [
+        ids = list(range(1, 4))
+        sentences = [
             "Наша дружная компания шла по улице и пела песни",
             "Компания производит качественные товары для дома",
             "В этой компании работают хорошие специалисты"
         ]
 
-    # Process examples with analysis
+    # Process examples
     csv_export_dir = process_examples_with_analysis(
-        examples,
+        ids, sentences,
         language=LANGUAGE,
         query_words=QUERY_WORDS,
         output_dir=OUTPUT_DIR
