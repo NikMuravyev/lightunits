@@ -1,0 +1,45 @@
+Concept,Language,Construction,Glosses,Morphosyntactic class,Structure,LEX Synt,Semantic roles,Syntactic coding,Xform,Collocation variants,Corpus example,Xrole,Yform,Yrole,Zform,Zrole,Translation,Comment,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+CARRY,3 конструкции,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+負う [ou] 'нести на спине',Japanese,нести ответственность,ответственность.ACC нести,Agentive relation,LEXN-case-LN,none,"X-nom, Y-acc",,,,,,,,,,,,,,,,,
+負う [ou] 'нести на спине',Japanese,"気 負う [ki ou] воодушевиться, букв. 'нести дух, настроение'",дух нести,Possessive property,LEXN-case-LN,Obj,"X-nom, Y-acc",,,,,,,,,,,,,,,,,
+負う [ou] 'нести на спине',Japanese,"сильно пораниться, пострадать",рана.ACC нести,Malgactive change of state,LEXN-case-LN,Obj,"X-nom, Y-acc",,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+GIVE,3 конструкции,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+貸す [kasu] 'одолжить',Japanese,"手 を 貸す [te wo kasu]
+выручить, оказать помощь, букв. 'одолжить руку'",рука.ACC должить,Benefactive,LEXN-case-LN,Obj,"X-nom, Y-acc",,,,,,,,,,,,,,,,,
+貸す [kasu] 'одолжить',Japanese,"耳 を 貸す [mimi wo kasu]
+выслушать, послушать, уделить кому-л. внимание, букв. 'одолжить ухо'",ухо.ACC должить,Benefactive,LEXN-case-LN,Obj,"X-nom, Y-acc",,,,,,,,,,,,,,,,,
+返す [kaesu] 'вернуть',Japanese,"を返す [wo kaesu] отомстить, отплатить тем же",Х.ACC вернуть,Malefactive (abstract transfer),LEXN-case-LN,Obj,"X-nom, Y-acc",,,,,,,,,,,,,,,,,
+取る [toru] 'брать',Japanese,"取るに足りない [toru ni mo tarinai] 'никчемный, бесполезный'",брать.DAT тоже NEG,Malefactive,,Predic,X-nom ,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+POSTURE,2 конструкции,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+"立つ [tatsu] 'стоять, вставать'",Japanese,"役に立つ [yaku ni tatsu] 'быть полезным', букв. 'вставать к службе'",служба.DAT поднимать,Benefactive,LEXN-case LV,Obj,X-dat,,,,,,,,,,,,,,,,,
+"立つ [tatsu] 'стоять, вставать'",Japanese,"腹立つ [hara datsu] 'злиться, рассердиться', букв. 'поднимать живот'",живот.поднимать,Change of mood,LEXN LV,Predic,X-acc,,,,,,,,,,,,,,,,,
+横たわる [yokotawaru] 'лежать',Japanese,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+SPEECH,7 конструкций,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+言う [iu] 'сказать',Japanese,"言わば  [iwaba]  так сказать, одним словом",say.HCD,Statement,сказать hypothetical condition,,,,,,,,,,,,,,,,,,,
+言う [iu] 'сказать',Japanese,言う通り [iu toori] 'как и говорилось',say.following,Evidence,сказать следование,,,,,,,,,,,,,,,,,,,
+言う [iu] 'сказать',Japanese,言う までも ない [iu mademo nai] 'очевидно',say even no,Evidence,сказать даже нет,,,,,,,,,,,,,,,,,,,
+言う [iu] 'сказать',Japanese,言うだけあって [iu dake atte] 'как он/она и сказал_а',say only was,Evidence,сказать только был.SEQ,,,,,,,,,,,,,,,,,,,
+言う [iu] 'сказать',Japanese,"言うところの [iu tokoro no] 'так называемый, известный'",say place of,Statement,сказать место GEN,,,,,,,,,,,,,,,,,,,
+"例える [tatoeru] 'сравнивать, связывать'",Japanese,例えば [tatoeba] 'например',compare.HCD,Statement,сравнить hypothetical condition,,,,,,,,,,,,,,,,,,,
+"詰まる [tsumaru] 'стать короче, сесть'",Japanese,"詰まり [tsumari] 'короче говоря, иными словами'",VERB.ADV,Statement,стать короче ADV,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+НЕСТИ,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+責任を持つ [sekininwo motsu],Japanese,нести ответственность за {x}-acc,{x}-GEN responsibility.ACC carry,Yes,Circumstances,{x}-GEN responsibility.ACC carry,be responsible for X,No,持つ [motsu],carry responsibility,No,,—,を [wo] ACC,Yes,Accusative marker,Not applicable,NPdo,theme,Yes,event,"выполнение, причинение, нарушение, неисполнение, содержание",Родители несут ответственность за детей.,Parents are responsible for their children.
+{x}-nom 臭い [kusai],Japanese,нести {x}-acc,臭い.ADJ,Yes,Circumstances,臭い.ADJ,stinking,No,stinking,stinking,Yes,,—,は [wa]・が [ga] NOM,Yes,Nominative marker,Not applicable,NPs,stymulus,Yes,damage,"потери, расходы, убытки",Он понес большие убытки на работе.,He took a big loss at work.
+несёт/несло X-ins,Japanese,несёт/несло X-ins,carry-INF X-INS,No,Physical state,carry-INF X-INS,smell like X,No,нести,carry,No,,—,INS,No,-,Not applicable,NPobl,stymulus,Yes,open class,"холод, водка, запах, жар, сырость",От него несёт алкоголем.,He reeks of alcohol.
+,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+酷い目に遭う [hidoi me ni au],попасть в X-acc,危険な目に遭った。,bad eye.LOC get,No,Goal,bad eye.LOC get,get into bad eye,Yes,遭う,to meet,Yes,,—,に [ni] LOC,Yes,in,Yes,NPobl,goal,Yes,open class,"плен, руки, больница, тюрьма, точка",Его мама попала в сумасшедший дом.,His mother ended up in an insane asylum.
+,,,,,,,,,,,,,,,,,,,,,,,,
+Xと間違う [to machigau],принять за X-acc,как 126,X.with mistake,No,Imitation,X.with mistake,mistake for X,No,間違う,mistake,Yes,,—,と [to] with,Yes,with,Yes,NPobl,goal,Yes,open class,"правило, основа, правда, истина, аксиома",Он принял того мужчину за своего отца.,He mistook that man for his father.
+,,,,,,,,,,,,,,,,,,,,,,,,
+終わりだ [owari da],c меня/нас хватит X-gen,僕たちの仲はもう終わりだ。,end.to be,Yes,Emotional state,end.to be,fed up with X,No,終わり,end,Yes,,—,-,Yes,-,Not applicable,Undefined,theme,Yes,open class,нет данных,С меня хватит!,I've had enough!
